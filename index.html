@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>日報入力アプリ</title>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>日報入力アプリ</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -19,6 +18,14 @@
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
+    .section-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #4a90e2;
+      margin: 16px 0 8px;
+      padding-left: 4px;
+      border-left: 3px solid #4a90e2;
+    }
     .card {
       background: #fff;
       border-radius: 12px;
@@ -33,7 +40,7 @@
       color: #555;
       margin-bottom: 6px;
     }
-    input, textarea {
+    input, textarea, select {
       width: 100%;
       padding: 10px 12px;
       border: 1.5px solid #ddd;
@@ -43,8 +50,9 @@
       background: #fafafa;
       outline: none;
       transition: border0.2s;
+      appearance: none;
     }
-    input:focus, textarea:focus {
+    input:focus, textarea:focus, select:focus {
       border-color: #4a90e2;
       background: #fff;
     }
@@ -55,36 +63,53 @@
     .time-row {
       display: flex;
       align-items: center;
-      gap: 8px;
-    }
+      gap: 8px;}
     .time-row input { flex: 1; }
     .time-row span { font-size: 18px; color: #888; }
-    .mic-row {
+    .select-wrap {
+      position: relative;
+    }
+    .select-wrap::after {
+      content: '▼';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: #888;
+      pointer-events: none;
+    }
+    .temp-row {
       display: flex;
       gap: 8px;
-      align-items: flex-start;
     }
-    .mic-row input,
-    .mic-row textarea {
-      flex: 1;}
-    .mic-btn {
-      background: #4a90e2;
-      color: white;
-      border: none;
+    .temp-btn {
+      flex: 1;
+      padding: 10px 4px;
+      border: 1.5px solid #ddd;
       border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 18px;
+      font-size: 15px;
+      background: #fafafa;
       cursor: pointer;
-      flex-shrink: 0;
-      margin-top: 0;
+      text-align: center;
+      transition: all 0.2s;
     }
-    .mic-btn.listening {
-      background: #e74c3c;
-      animation: pulse 1s infinite;
+    .temp-btn.selected-c {
+      background: #fff0f0;
+      border-color: #e74c3c;
+      color: #e74c3c;
+      font-weight: bold;
     }
-    @keyframes pulse {
-      0%,100% { opacity: 1; }
-      50% { opacity: 0.6; }
+    .temp-btn.selected-d {
+      background: #fffbe6;
+      border-color: #f39c12;
+      color: #f39c12;font-weight: bold;
+    }
+    .temp-btn.selected-e {
+      background: #f0f4ff;
+      border-color: #4a90e2;
+      color: #4a90e2;
+      font-weight: bold;
     }
     .btn-area {
       display: flex;
@@ -108,14 +133,13 @@
     .reset-btn {
       background: #fff;
       color: #e74c3c;
-      border: 2px solid #e74c3c;
+      border:2px solid #e74c3c;
       border-radius: 12px;
       padding: 14px;
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
-      width: 100%;
-    }
+      width: 100%;}
     .reset-btn:active { background: #fdf0f0; }
     .toast {
       display: none;
@@ -138,7 +162,8 @@
     @keyframes fadeInOut {
       0% { opacity: 0; }
       15% { opacity: 1; }
-      75% { opacity: 1; }100% { opacity: 0; }
+      75% { opacity: 1; }
+      100% { opacity: 0; }
     }
   </style>
 </head>
@@ -146,31 +171,47 @@
 
 <h1>📋 日報入力アプリ</h1>
 
-<!-- 法人名 -->
+<!-- 基本情報 -->
+<div class="section-title">📌 基本情報</div>
+
 <div class="card">
   <label>🏢 法人名</label>
-  <div class="mic-row">
-    <input type="text" id="hojin" placeholder="例：○○株式会社">
-    <button class="mic-btn" onclick="startVoice('hojin', this)">🎤</button>
-  </div>
+  <input type="text" id="hojin" placeholder="例：○○株式会社">
 </div>
 
-<!-- 施設名 -->
 <div class="card">
   <label>🏠 施設名</label>
-  <div class="mic-row">
-    <input type="text" id="shisetsu" placeholder="例：○○施設">
-    <button class="mic-btn" onclick="startVoice('shisetsu', this)">🎤</button>
+  <input type="text" id="shisetsu" placeholder="例：○○施設">
+</div>
+
+<div class="card">
+  <label>🏷️ サービス種別</label>
+  <div class="select-wrap">
+    <select id="service">
+      <option value="">選択してください</option>
+      <option>特別養護老人ホーム</option>
+      <option>介護老人保健施設</option>
+      <option>デイサービス</option>
+      <option>訪問介護</option>
+      <option>グループホーム</option>
+      <option>有料老人ホーム</option>
+      <option>サービス付き高齢者向け住宅</option>
+      <option>障害福祉サービス</option>
+      <option>その他</option>
+    </select>
   </div>
 </div>
 
-<!-- 日付 -->
+<div class="card">
+  <label>👥 利用者数・職員数</label>
+  <input type="text" id="ninzu" placeholder="例：利用者30名・職員15名">
+</div>
+
 <div class="card">
   <label>📅 日付</label>
   <input type="date" id="date">
 </div>
 
-<!-- 開始~終了時間 -->
 <div class="card">
   <label>🕐 開始時間 ~ 終了時間</label>
   <div class="time-row">
@@ -180,49 +221,92 @@
   </div>
 </div>
 
-<!-- 同行者 -->
 <div class="card">
-  <label>👥 同行者</label>
-  <div class="mic-row">
-    <input type="text" id="dokosha" placeholder="例：田中・鈴木（なし の場合はなしと入力）">
-    <button class="mic-btn" onclick="startVoice('dokosha', this)">🎤</button>
-  </div>
+  <label>👤 同行者</label>
+  <input type="text" id="dokosha" placeholder="例：田中・鈴木（なし の場合はなしと入力）">
 </div>
 
-<!-- 面談者 -->
 <div class="card">
   <label>🤝 面談者</label>
-  <div class="mic-row">
-    <input type="text" id="mendan" placeholder="例：施設長 山田様">
-    <button class="mic-btn" onclick="startVoice('mendan', this)">🎤</button>
+  <input type="text" id="mendan" placeholder="例：施設長 山田様">
+</div>
+
+<!-- 商談情報 -->
+<div class="section-title">🎯 商談情報</div>
+
+<div class="card">
+  <label>🔢 商談フェーズ</label>
+  <div class="select-wrap">
+    <select id="phase">
+      <option value="">選択してください</option>
+      <option>デモ</option>
+      <option>商談</option>
+      <option>商談再訪</option>
+      <option>メール・電話</option></select>
   </div>
 </div>
 
-<!-- 内容 -->
+<div class="card">
+  <label>⭐ 温度感</label>
+  <div class="temp-row">
+    <button class="temp-btn" id="temp-c" onclick="selectTemp('c')">C（見込あり）</button>
+    <button class="temp-btn" id="temp-d" onclick="selectTemp('d')">D（見込可能性あり）</button>
+    <button class="temp-btn" id="temp-e" onclick="selectTemp('e')">E（見込なし）</button>
+  </div>
+</div>
+
+<!-- BANT -->
+<div class="section-title">💼 BANT</div>
+
+<div class="card">
+  <label>💰 Budget（予算）</label>
+  <textarea id="budget" placeholder="例：月額3万円以内なら検討可。上長への確認が必要とのこと。"></textarea>
+</div>
+
+<div class="card">
+  <label>👤 Authority（決裁者）</label>
+  <textarea id="authority" placeholder="例：施設長が決裁権あり。法人本部の承認も必要。"></textarea>
+</div>
+
+<div class="card">
+  <label>🎯 Needs（課題・ニーズ）</label>
+  <textarea id="needs" placeholder="例：記録業務に時間がかかっている。算定漏れが発生している。"></textarea>
+</div>
+
+<div class="card">
+  <label>⏰ Timeline（導入時期）</label>
+  <textarea id="timeline" placeholder="例：来年4月の介護報酬改定に合わせて導入したい。"></textarea>
+</div>
+
+<!-- 現状・競合 -->
+<div class="section-title">🔍 現状・競合</div>
+
+<div class="card">
+  <label>💻 現在使用中のソフト</label>
+  <input type="text" id="currentsoft" placeholder="例：〇〇社のシステムを使用中。契約更新は来年3月。">
+</div>
+
+<!-- 活動内容 -->
+<div class="section-title">📝 活動内容</div>
+
 <div class="card">
   <label>📝 内容</label>
-  <div class="mic-row">
-    <textarea id="naiyou" placeholder="例：システム導入提案を実施。デモを見ていただき好感触。"></textarea>
-    <button class="mic-btn" onclick="startVoice('naiyou', this)">🎤</button>
-  </div>
+  <textarea id="naiyou" placeholder="例：システム導入提案を実施。デモを見ていただき好感触。"></textarea>
 </div>
 
-<!-- 今後 -->
+<div class="card">
+  <label>📞 次回アクション</label>
+  <textarea id="action" placeholder="例：2週間後に再訪。見積書と導入事例を持参する。"></textarea>
+</div>
+
 <div class="card">
   <label>🔜 今後</label>
-  <div class="mic-row">
-    <textarea id="kongo" placeholder="例：来週デモ実施予定。見積書を準備する。"></textarea>
-    <button class="mic-btn" onclick="startVoice('kongo', this)">🎤</button>
-  </div>
+  <textarea id="kongo" placeholder="例：来週デモ実施予定。見積書を準備する。"></textarea>
 </div>
 
-<!-- 備考 -->
 <div class="card">
   <label>📌 備考</label>
-  <div class="mic-row">
-    <textarea id="biko" placeholder="例：担当者が来月異動予定とのこと。"></textarea>
-    <button class="mic-btn" onclick="startVoice('biko', this)">🎤</button>
-  </div>
+  <textarea id="biko" placeholder="例：担当者が来月異動予定とのこと。"></textarea>
 </div>
 
 <!-- ボタン -->
@@ -241,35 +325,14 @@
   const dd = String(today.getDate()).padStart(2, '0');
   document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
 
-  // 音声入力
-  function startVoice(fieldId, btn) {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      alert('音声入力はiPhoneのSafariでご利用ください');
-      return;
-    }
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SR();
-    recognition.lang = 'ja-JP';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    btn.classList.add('listening');
-    btn.textContent = '⏹';
-
-    recognition.onresult = (e) => {
-      const transcript = e.results[0][0].transcript;
-      const el = document.getElementById(fieldId);
-      el.value += transcript;
-    };
-    recognition.onend = () => {
-      btn.classList.remove('listening');
-      btn.textContent = '🎤';
-    };
-    recognition.onerror = () => {
-      btn.classList.remove('listening');
-      btn.textContent = '🎤';
-    };
-    recognition.start();
+  // 温度感選択
+  let selectedTemp = '';
+  function selectTemp(type) {
+    ['c','d','e'].forEach(t => {
+      document.getElementById(`temp-${t}`).className = 'temp-btn';
+    });
+    selectedTemp = type;
+    document.getElementById(`temp-${type}`).classList.add(`selected-${type}`);
   }
 
   // まとめてコピー
@@ -278,14 +341,25 @@
     const formattedDate = date ? date.replace(/-/g, '/') : '未入力';
     const start = document.getElementById('startTime').value || '未入力';
     const end = document.getElementById('endTime').value || '未入力';
+    const tempLabel = selectedTemp === 'c' ? 'C（見込あり）' : selectedTemp === 'd' ? 'D（見込可能性あり）' : selectedTemp === 'e' ? 'E（見込なし）' : '未入力';
 
     const text = `【法人名】${document.getElementById('hojin').value || '未入力'}
 【施設名】${document.getElementById('shisetsu').value || '未入力'}
+【サービス種別】${document.getElementById('service').value || '未入力'}
+【利用者数・職員数】${document.getElementById('ninzu').value || '未入力'}
 【日付】${formattedDate}
 【時間】${start}~${end}
 【同行者】${document.getElementById('dokosha').value || '未入力'}
 【面談者】${document.getElementById('mendan').value || '未入力'}
+【商談フェーズ】${document.getElementById('phase').value || '未入力'}
+【温度感】${tempLabel}
+【Budget（予算）】${document.getElementById('budget').value || '未入力'}
+【Authority（決裁者）】${document.getElementById('authority').value || '未入力'}
+【Needs（課題）】${document.getElementById('needs').value || '未入力'}
+【Timeline（導入時期）】${document.getElementById('timeline').value || '未入力'}
+【現在使用中のソフト】${document.getElementById('currentsoft').value || '未入力'}
 【内容】${document.getElementById('naiyou').value || '未入力'}
+【次回アクション】${document.getElementById('action').value || '未入力'}
 【今後】${document.getElementById('kongo').value || '未入力'}
 【備考】${document.getElementById('biko').value || '未入力'}`;
 
@@ -305,11 +379,19 @@
   // 全クリア
   function resetAll() {
     if (!confirm('入力内容をすべてクリアしますか？')) return;
-    ['hojin','shisetsu','dokosha','mendan','naiyou','kongo','biko'].forEach(id => {
+    ['hojin','shisetsu','ninzu','dokosha','mendan',
+     'budget','authority','needs','timeline',
+     'currentsoft','naiyou','action','kongo','biko'].forEach(id => {
       document.getElementById(id).value = '';
     });
+    document.getElementById('service').value = '';
+    document.getElementById('phase').value = '';
     document.getElementById('startTime').value = '';
     document.getElementById('endTime').value = '';
+    selectedTemp = '';
+    ['c','d','e'].forEach(t => {
+      document.getElementById(`temp-${t}`).className = 'temp-btn';
+    });
     const t = new Date();
     const y = t.getFullYear();
     const m = String(t.getMonth()+1).padStart(2,'0');
