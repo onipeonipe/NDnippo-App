@@ -1,10 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>日報入力アプリ</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>日報入力アプリ</title><style>* { box-sizing: border-box; margin: 0; padding: 0; }
+    body {font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
       background: #f0f4f8;
       padding: 16px;
     }
@@ -92,8 +89,7 @@
       background: #fafafa;
       cursor: pointer;
       text-align: center;
-      transition: all 0.2s;
-    }
+      transition: all 0.2s;}
     .temp-btn.selected-c {
       background: #fff0f0;
       border-color: #e74c3c;
@@ -103,7 +99,8 @@
     .temp-btn.selected-d {
       background: #fffbe6;
       border-color: #f39c12;
-      color: #f39c12;font-weight: bold;
+      color: #f39c12;
+      font-weight: bold;
     }
     .temp-btn.selected-e {
       background: #f0f4ff;
@@ -133,7 +130,7 @@
     .reset-btn {
       background: #fff;
       color: #e74c3c;
-      border:2px solid #e74c3c;
+      border: 2px solid #e74c3c;
       border-radius: 12px;
       padding: 14px;
       font-size: 16px;
@@ -162,8 +159,7 @@
     @keyframes fadeInOut {
       0% { opacity: 0; }
       15% { opacity: 1; }
-      75% { opacity: 1; }
-      100% { opacity: 0; }
+      75% { opacity: 1; }100% { opacity: 0; }
     }
   </style>
 </head>
@@ -185,35 +181,12 @@
 </div>
 
 <div class="card">
-  <label>🏷️ サービス種別</label>
-  <div class="select-wrap">
-    <select id="service">
-      <option value="">選択してください</option>
-      <option>特別養護老人ホーム</option>
-      <option>介護老人保健施設</option>
-      <option>デイサービス</option>
-      <option>訪問介護</option>
-      <option>グループホーム</option>
-      <option>有料老人ホーム</option>
-      <option>サービス付き高齢者向け住宅</option>
-      <option>障害福祉サービス</option>
-      <option>その他</option>
-    </select>
-  </div>
-</div>
-
-<div class="card">
-  <label>👥 利用者数・職員数</label>
-  <input type="text" id="ninzu" placeholder="例：利用者30名・職員15名">
-</div>
-
-<div class="card">
   <label>📅 日付</label>
   <input type="date" id="date">
 </div>
 
 <div class="card">
-  <label>🕐 開始時間 ~ 終了時間</label>
+  <label>🕐 開始時間~ 終了時間</label>
   <div class="time-row">
     <input type="time" id="startTime">
     <span>~</span>
@@ -239,10 +212,12 @@
   <div class="select-wrap">
     <select id="phase">
       <option value="">選択してください</option>
+      <option>ヒアリング</option>
       <option>デモ</option>
       <option>商談</option>
       <option>商談再訪</option>
-      <option>メール・電話</option></select>
+      <option>メール・電話</option>
+    </select>
   </div>
 </div>
 
@@ -345,8 +320,6 @@
 
     const text = `【法人名】${document.getElementById('hojin').value || '未入力'}
 【施設名】${document.getElementById('shisetsu').value || '未入力'}
-【サービス種別】${document.getElementById('service').value || '未入力'}
-【利用者数・職員数】${document.getElementById('ninzu').value || '未入力'}
 【日付】${formattedDate}
 【時間】${start}~${end}
 【同行者】${document.getElementById('dokosha').value || '未入力'}
@@ -379,12 +352,11 @@
   // 全クリア
   function resetAll() {
     if (!confirm('入力内容をすべてクリアしますか？')) return;
-    ['hojin','shisetsu','ninzu','dokosha','mendan',
+    ['hojin','shisetsu','dokosha','mendan',
      'budget','authority','needs','timeline',
      'currentsoft','naiyou','action','kongo','biko'].forEach(id => {
       document.getElementById(id).value = '';
     });
-    document.getElementById('service').value = '';
     document.getElementById('phase').value = '';
     document.getElementById('startTime').value = '';
     document.getElementById('endTime').value = '';
