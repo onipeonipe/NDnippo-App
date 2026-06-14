@@ -53,6 +53,10 @@ textarea { min-height: 80px; resize: vertical; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 .modal-title { font-size: 17px; font-weight: bold; color: #2c3e50; }
 .modal-close { background: #ddd; border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.modal-subheader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px; }
+.history-count { font-size: 12px; color: #888; }
+.export-btn { padding: 8px 14px; background: #e67e22; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+.export-btn:active { opacity: 0.85; }
 .history-item { border: 1.5px solid #ddd; border-radius: 12px; padding: 14px; margin-bottom: 10px; background: #fafafa; }
 .history-item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
 .history-item-title { font-size: 15px; font-weight: bold; color: #2c3e50; }
@@ -67,6 +71,8 @@ textarea { min-height: 80px; resize: vertical; }
 .editing-banner { background: #fff8e1; border: 1.5px solid #f39c12; border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px; color: #2c3e50; display: none; align-items: center; justify-content: space-between; }
 .editing-banner.show { display: flex; }
 .overwrite-btn { padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; border: none; background: #f39c12; color: #fff; }
+.limit-banner { background: #fdf0f0; border: 1.5px solid #e74c3c; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px; color: #e74c3c; text-align: center; display: none; }
+.limit-banner.show { display: block; }
 </style>
 </head>
 <body>
@@ -117,7 +123,7 @@ textarea { min-height: 80px; resize: vertical; }
 </div>
 <div class="card">
   <label>🤝 面談者</label>
-  <input type="text" id="mendan" placeholder="例：施設長 山田様">
+  <input type="text" id="mendan" placeholder="例：施設長山田様">
 </div>
 
 <!-- 商談情報 -->
@@ -223,11 +229,17 @@ textarea { min-height: 80px; resize: vertical; }
       <span class="modal-title">📂 履歴一覧</span>
       <button class="modal-close" onclick="closeHistory()">✕</button>
     </div>
+    <div class="modal-subheader">
+      <span class="history-count" id="historyCount"></span>
+      <button class="export-btn" onclick="exportHistories()">📤 テキスト出力</button>
+    </div>
+    <div class="limit-banner" id="limitBanner">⚠️ 履歴が上限（50件）に達しています。古い履歴から自動削除されます。</div>
     <div id="historyList"></div>
   </div>
 </div>
 
 <script>
+const HISTORY_LIMIT = 50;
 const autoSaveIds = ['hojin','shisetsu','date','startTime','endTime','dokosha','mendan','phase','budget','authority','needs','timeline','currentsoft','naiyou','action','kongo','biko'];
 let selectedTemp = '';
 let editingId = null;
@@ -248,8 +260,7 @@ autoSaveIds.forEach(id => {
   document.getElementById(id).addEventListener('change', autoSave);
 });
 function autoSave() {
-  const data = collectData();
-  localStorage.setItem('nippo_draft', JSON.stringify(data));
+  localStorage.setItem('nippo_draft', JSON.stringify(collectData()));
 }
 
 // データ収集
@@ -269,7 +280,8 @@ function setFormData(data) {
     if (data[id] !== undefined) document.getElementById(id).value = data[id];
   });
   selectedTemp = '';
-  ['b','c','d','e'].forEach(t => { document.getElementById(`temp-${t}`).className = 'temp-btn'; });if (data.temp) selectTemp(data.temp);
+  ['b','c','d','e'].forEach(t => { document.getElementById(`temp-${t}`).className = 'temp-btn'; });
+  if (data.temp) selectTemp(data.temp);
   document.querySelectorAll('.shohin-btn').forEach(btn => btn.classList.remove('selected'));
   if (data.shohin && data.shohin.length > 0) {
     document.querySelectorAll('.shohin-btn').forEach(btn => {
@@ -371,14 +383,17 @@ function copyAll() {
   });
 }
 
-// 履歴に保存
+// 履歴に保存（上限50件・古いものを自動削除）
 function saveToHistory() {
   if (!validate()) { showToast('⚠️ 必須項目を入力してください'); return; }
   const data = collectData();
   data.savedAt = new Date().toISOString();
   data.id = Date.now().toString();
-  const histories = getHistories();
+  let histories = getHistories();
   histories.unshift(data);
+  if (histories.length > HISTORY_LIMIT) {
+    histories = histories.slice(0, HISTORY_LIMIT);
+  }
   localStorage.setItem('nippo_histories', JSON.stringify(histories));
   localStorage.removeItem('nippo_draft');
   editingId = null;
@@ -393,7 +408,7 @@ function overwriteSave() {
   const data = collectData();
   data.savedAt = new Date().toISOString();
   data.id = editingId;
-  const histories = getHistories();
+  let histories = getHistories();
   const idx = histories.findIndex(h => h.id === editingId);
   if (idx !== -1) { histories[idx] = data; } else { histories.unshift(data); }
   localStorage.setItem('nippo_histories', JSON.stringify(histories));
@@ -412,7 +427,11 @@ function getHistories() {
 function openHistory() {
   const histories = getHistories();
   const list = document.getElementById('historyList');
-  if (histories.length === 0) {
+  const countEl = document.getElementById('historyCount');
+  const limitBanner = document.getElementById('limitBanner');
+  countEl.textContent = `保存件数：${histories.length} / ${HISTORY_LIMIT}件`;
+  limitBanner.classList.toggle('show', histories.length >= HISTORY_LIMIT);
+  if (histories.length ===0) {
     list.innerHTML = '<div class="no-history">📭 保存された履歴がありません</div>';
   } else {
     list.innerHTML = histories.map(h => {
@@ -437,8 +456,7 @@ function openHistory() {
         </div>
       </div>`;
     }).join('');
-  }
-  document.getElementById('modalOverlay').classList.add('show');
+  }document.getElementById('modalOverlay').classList.add('show');
 }
 
 // 履歴を閉じる
@@ -458,7 +476,7 @@ function loadHistory(id) {
   showToast('✏️ 履歴を読み込みました。編集できます');
 }
 
-// 履歴からコピー（フォームを汚さずコピー）
+// 履歴からコピー
 function copyHistory(id) {
   const histories = getHistories();
   const data = histories.find(h => h.id === id);
@@ -482,6 +500,57 @@ function deleteHistory(id) {
   localStorage.setItem('nippo_histories', JSON.stringify(histories));
   openHistory();
   showToast('🗑️ 削除しました');
+}
+
+// エクスポート（日付で囲んで全件テキスト出力）
+function exportHistories() {
+  const histories = getHistories();
+  if (histories.length === 0) { showToast('📭 エクスポートする履歴がありません'); return; }
+
+  //訪問日付でグループ化（date基準、なければsavedAt日付）
+  const groups = {};
+  histories.forEach(h => {
+    const keyDate = h.date ? h.date.replace(/-/g, '/') : new Date(h.savedAt).toLocaleDateString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g,'/');
+    if (!groups[keyDate]) groups[keyDate] = [];
+    groups[keyDate].push(h);
+  });
+
+  // 日付の新しい順にソート
+  const sortedDates = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+
+  const separator = '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+  const lines = [];
+
+  const exportDt = new Date();
+  const exportDateStr = `${exportDt.getFullYear()}/${String(exportDt.getMonth()+1).padStart(2,'0')}/${String(exportDt.getDate()).padStart(2,'0')} ${String(exportDt.getHours()).padStart(2,'0')}:${String(exportDt.getMinutes()).padStart(2,'0')}`;
+  lines.push(`■ 日報エクスポート　出力日時：${exportDateStr}`);
+  lines.push(`■ 総件数：${histories.length}件`);
+  lines.push('');
+
+  sortedDates.forEach(dateKey => {
+    lines.push(separator);
+    lines.push(`▼ ${dateKey}（${groups[dateKey].length}件）`);
+    lines.push(separator);
+    groups[dateKey].forEach((h, idx) => {
+      if (idx > 0) lines.push('');
+      lines.push(buildText(h));
+    });
+    lines.push('');
+  });
+
+  const fullText = lines.join('\n');
+
+  //ダウンロード
+  const blob = new Blob([fullText], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const now = new Date();
+  const fileName = `日報履歴_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.txt`;
+  a.href = url; a.download = fileName;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('📤 エクスポートしました！');
 }
 
 // 全クリア
