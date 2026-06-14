@@ -1,3 +1,330 @@
-「Enter file contents here」
-という大きな入力欄があります
-そこに先ほどのHTMLコードを丸ごと貼り付けてください
+<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日報入力アプリ</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      background: #f0f4f8;
+      padding: 16px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 20px;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      padding: 12px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 6px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      color: #333;
+      background: #fafafa;
+      outline: none;
+      transition: border 0.2s;
+    }
+    input:focus, textarea:focus {
+      border-color: #4a90e2;
+      background: #fff;
+    }
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    .time-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;}
+    .time-row input { flex: 1; }
+    .time-row span { font-size: 18px; color: #888; }
+    .mic-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .mic-row input,
+    .mic-row textarea {
+      flex: 1;}
+    .mic-btn {
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 18px;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 0;
+    }
+    .mic-btn.listening {
+      background: #e74c3c;
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    .btn-area {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .copy-btn {
+      background: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      box-shadow: 0 3px 10px rgba(39,174,96,0.3);
+    }
+    .copy-btn:active { opacity: 0.85; }
+    .reset-btn {
+      background: #fff;
+      color: #e74c3c;
+      border:2px solid #e74c3c;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+    }
+    .reset-btn:active { background: #fdf0f0; }
+    .toast {
+      display: none;
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2c3e50;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 20px;
+      font-size: 15px;
+      z-index: 999;
+      white-space: nowrap;
+    }
+    .toast.show {
+      display: block;
+      animation: fadeInOut 2s forwards;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      15% { opacity: 1; }
+      75% { opacity: 1; }100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>📋 日報入力アプリ</h1>
+
+<!-- 法人名 -->
+<div class="card">
+  <label>🏢 法人名</label>
+  <div class="mic-row">
+    <input type="text" id="hojin" placeholder="例：○○株式会社">
+    <button class="mic-btn" onclick="startVoice('hojin', this)">🎤</button>
+  </div>
+</div>
+
+<!-- 施設名 -->
+<div class="card">
+  <label>🏠 施設名</label>
+  <div class="mic-row">
+    <input type="text" id="shisetsu" placeholder="例：○○老人ホーム">
+    <button class="mic-btn" onclick="startVoice('shisetsu', this)">🎤</button>
+  </div>
+</div>
+
+<!-- 日付 -->
+<div class="card">
+  <label>📅 日付</label>
+  <input type="date" id="date">
+</div>
+
+<!-- 開始〜終了時間 -->
+<div class="card">
+  <label>🕐 開始時間 〜 終了時間</label>
+  <div class="time-row">
+    <input type="time" id="startTime">
+    <span>〜</span>
+    <input type="time" id="endTime">
+  </div>
+</div>
+
+<!-- 同行者 -->
+<div class="card">
+  <label>👥 同行者</label>
+  <div class="mic-row">
+    <input type="text" id="dokosha" placeholder="例：田中・佐藤（なし の場合はなしと入力）">
+    <button class="mic-btn" onclick="startVoice('dokosha', this)">🎤</button>
+  </div>
+</div>
+
+<!-- 面談者 -->
+<div class="card">
+  <label>🤝 面談者</label>
+  <div class="mic-row">
+    <input type="text" id="mendan" placeholder="例：施設長鈴木様">
+    <button class="mic-btn" onclick="startVoice('mendan', this)">🎤</button>
+  </div>
+</div>
+
+<!-- 内容 -->
+<div class="card">
+  <label>📝 内容</label>
+  <div class="mic-row">
+    <textarea id="naiyou" placeholder="例：システム導入提案を実施。デモを見ていただき好感触。"></textarea>
+    <button class="mic-btn" onclick="startVoice('naiyou', this)">🎤</button>
+  </div>
+</div>
+
+<!-- 今後 -->
+<div class="card">
+  <label>🔜 今後</label>
+  <div class="mic-row">
+    <textarea id="kongo" placeholder="例：来週デモ実施予定。見積書を準備する。"></textarea>
+    <button class="mic-btn" onclick="startVoice('kongo', this)">🎤</button>
+  </div>
+</div>
+
+<!-- 備考 -->
+<div class="card">
+  <label>📌 備考</label>
+  <div class="mic-row">
+    <textarea id="biko" placeholder="例：担当者が来月異動予定とのこと。"></textarea>
+    <button class="mic-btn" onclick="startVoice('biko', this)">🎤</button>
+  </div>
+</div>
+
+<!-- ボタン -->
+<div class="btn-area">
+  <button class="copy-btn" onclick="copyAll()">📋 まとめてコピー</button>
+  <button class="reset-btn" onclick="resetAll()">🗑️ 全クリア</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>// 今日の日付を自動セット
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
+
+  // 音声入力
+  function startVoice(fieldId, btn) {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('音声入力はiPhoneのSafariでご利用ください');
+      return;
+    }
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SR();
+    recognition.lang = 'ja-JP';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    btn.classList.add('listening');
+    btn.textContent = '⏹';
+
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      const el = document.getElementById(fieldId);
+      el.value += (el.value ? '' : '') + transcript;
+    };
+    recognition.onend = () => {
+      btn.classList.remove('listening');
+      btn.textContent = '🎤';
+    };
+    recognition.onerror = () => {
+      btn.classList.remove('listening');
+      btn.textContent = '🎤';
+    };
+    recognition.start();
+  }
+
+  // まとめてコピー
+  function copyAll() {
+    const date = document.getElementById('date').value;
+    const formattedDate = date ? date.replace(/-/g, '/') : '未入力';
+    const start = document.getElementById('startTime').value || '未入力';
+    const end = document.getElementById('endTime').value || '未入力';
+
+    const text = `【法人名】${document.getElementById('hojin').value || '未入力'}
+【施設名】${document.getElementById('shisetsu').value || '未入力'}
+【日付】${formattedDate}
+【時間】${start}〜${end}
+【同行者】${document.getElementById('dokosha').value || '未入力'}
+【面談者】${document.getElementById('mendan').value || '未入力'}
+【内容】${document.getElementById('naiyou').value || '未入力'}
+【今後】${document.getElementById('kongo').value || '未入力'}
+【備考】${document.getElementById('biko').value || '未入力'}`;
+
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('📋 コピーしました！');
+    }).catch(() => {
+      // fallback
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('📋 コピーしました！');
+    });
+  }
+
+  // 全クリア
+  function resetAll() {
+    if (!confirm('入力内容をすべてクリアしますか？')) return;
+    ['hojin','shisetsu','dokosha','mendan','naiyou','kongo','biko'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('startTime').value = '';
+    document.getElementById('endTime').value = '';
+    const t = new Date();
+    const y = t.getFullYear();
+    const m = String(t.getMonth()+1).padStart(2,'0');
+    const d = String(t.getDate()).padStart(2,'0');
+    document.getElementById('date').value = `${y}-${m}-${d}`;
+    showToast('🗑️ クリアしました！');
+  }
+
+  // トースト表示
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+</script>
+</body>
+</html>
