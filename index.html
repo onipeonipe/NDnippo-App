@@ -1,259 +1,79 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>日報入力アプリ</title><style>* { box-sizing: border-box; margin: 0; padding: 0; }body {font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-      background: #f0f4f8;
-      padding: 16px;
-    }
-    h1 {
-      text-align: center;
-      font-size: 20px;
-      color: #2c3e50;
-      margin-bottom: 20px;
-      padding: 12px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    .section-title {
-      font-size: 13px;
-      font-weight: bold;
-      color: #4a90e2;
-      margin: 16px 0 8px;
-      padding-left: 4px;
-      border-left: 3px solid #4a90e2;
-    }
-    .card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: bold;
-      color: #555;
-      margin-bottom: 6px;
-    }
-    .required-badge {
-      display: inline-block;
-      background: #e74c3c;
-      color: #fff;
-      font-size: 11px;
-      font-weight: bold;
-      padding: 2px 6px;
-      border-radius: 4px;
-      margin-left: 6px;
-      vertical-align: middle;
-    }
-    input, textarea, select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1.5px solid #ddd;
-      border-radius: 8px;
-      font-size: 16px;
-      color: #333;
-      background: #fafafa;
-      outline: none;
-      appearance: none;
-    }
-    input:focus, textarea:focus, select:focus {
-      border-color: #4a90e2;
-      background: #fff;
-    }
-    input.error, select.error {
-      border-color: #e74c3c;
-      background: #fff5f5;
-    }
-    .error-msg {
-      display: none;
-      color: #e74c3c;
-      font-size: 12px;
-      margin-top: 6px;
-    }
-    .error-msg.show { display: block; }
-    textarea {
-      min-height: 80px;
-      resize: vertical;
-    }
-    .time-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .time-row input { flex: 1; }
-    .time-row span { font-size: 18px; color: #888; }
-    .select-wrap { position: relative; }
-    .select-wrap::after {
-      content: '▼';
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 12px;
-      color: #888;
-      pointer-events: none;
-    }
-    .temp-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .temp-btn {
-      flex: 1;
-      min-width: calc(50% - 4px);
-      padding: 10px 4px;
-      border: 1.5px solid #ddd;
-      border-radius: 8px;
-      font-size: 14px;
-      background: #fafafa;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.2s;
-    }
-    .temp-btn.selected-b {
-      background: #f0fff4;
-      border-color: #27ae60;
-      color: #27ae60;font-weight: bold;
-    }
-    .temp-btn.selected-c {
-      background: #fff0f0;
-      border-color: #e74c3c;
-      color: #e74c3c;
-      font-weight: bold;
-    }
-    .temp-btn.selected-d {
-      background: #fffbe6;
-      border-color: #f39c12;
-      color: #f39c12;
-      font-weight: bold;
-    }
-    .temp-btn.selected-e {
-      background: #f0f4ff;
-      border-color: #4a90e2;
-      color: #4a90e2;
-      font-weight: bold;
-    }
-
-    /*紹介商材 複数選択ボタン */
-    .shohin-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .shohin-btn {
-      padding: 8px 12px;
-      border: 1.5px solid #ddd;
-      border-radius: 20px;
-      font-size: 13px;
-      background: #fafafa;
-      cursor: pointer;
-      transition: all 0.2s;white-space: nowrap;
-    }
-    .shohin-btn.selected {
-      background: #4a90e2;
-      border-color: #4a90e2;
-      color: #fff;
-      font-weight: bold;
-    }
-
-    /* 一時保存バナー */
-    .save-banner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #eaf4ff;
-      border: 1.5px solid #4a90e2;
-      border-radius: 10px;
-      padding: 10px 14px;
-      margin-bottom: 14px;
-      font-size: 13px;
-      color: #2c3e50;
-    }
-    .save-banner span { flex: 1; }
-    .save-banner-btns {
-      display: flex;
-      gap: 8px;
-    }
-    .save-small-btn {
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      border: none;
-    }
-    .save-small-btn.restore {
-      background: #4a90e2;
-      color: #fff;
-    }
-    .save-small-btn.discard {
-      background: #ddd;
-      color: #555;
-    }
-
-    .btn-area {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 8px;
-    }
-    .copy-btn {
-      background: #27ae60;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 16px;
-      font-size: 17px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-      box-shadow: 0 3px 10px rgba(39,174,96,0.3);
-    }
-    .copy-btn:active { opacity: 0.85; }
-    .reset-btn {
-      background: #fff;
-      color: #e74c3c;
-      border: 2px solid #e74c3c;
-      border-radius: 12px;
-      padding: 14px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;}
-    .reset-btn:active { background: #fdf0f0; }
-    .toast {
-      display: none;
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #2c3e50;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 20px;
-      font-size: 15px;
-      z-index: 999;
-      white-space: nowrap;
-    }
-    .toast.show {
-      display: block;
-      animation: fadeInOut 2s forwards;
-    }
-    @keyframes fadeInOut {
-      0% { opacity: 0; }
-      15% { opacity: 1; }
-      75% { opacity: 1; }
-      100% { opacity: 0; }
-    }
-  </style>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>日報入力アプリ</title><style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; background: #f0f4f8; padding: 16px; }
+h1 { text-align: center; font-size: 20px; color: #2c3e50; margin-bottom: 20px; padding: 12px; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.section-title { font-size: 13px; font-weight: bold; color: #4a90e2; margin: 16px 0 8px; padding-left: 4px; border-left: 3px solid #4a90e2; }
+.card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+label { display: block; font-size: 13px; font-weight: bold; color: #555; margin-bottom: 6px; }
+.required-badge { display: inline-block; background: #e74c3c; color: #fff; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
+input, textarea, select { width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 16px; color: #333; background: #fafafa; outline: none; appearance: none; }
+input:focus, textarea:focus, select:focus { border-color: #4a90e2; background: #fff; }
+input.error, select.error { border-color: #e74c3c; background: #fff5f5; }
+.error-msg { display: none; color: #e74c3c; font-size: 12px; margin-top: 6px; }
+.error-msg.show { display: block; }
+textarea { min-height: 80px; resize: vertical; }
+.time-row { display: flex; align-items: center; gap: 8px; }
+.time-row input { flex: 1; }
+.time-row span { font-size: 18px; color: #888; }
+.select-wrap { position: relative; }
+.select-wrap::after { content: '▼'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; color: #888; pointer-events: none; }
+.temp-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.temp-btn { flex: 1; min-width: calc(50% - 4px); padding: 10px 4px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; background: #fafafa; cursor: pointer; text-align: center; transition: all 0.2s; }
+.temp-btn.selected-b { background: #f0fff4; border-color: #27ae60; color: #27ae60; font-weight: bold; }
+.temp-btn.selected-c { background: #fff0f0; border-color: #e74c3c; color: #e74c3c; font-weight: bold; }
+.temp-btn.selected-d { background: #fffbe6; border-color: #f39c12; color: #f39c12; font-weight: bold; }
+.temp-btn.selected-e { background: #f0f4ff; border-color: #4a90e2; color: #4a90e2; font-weight: bold; }
+.shohin-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.shohin-btn { padding: 8px 12px; border: 1.5px solid #ddd; border-radius: 20px; font-size: 13px; background: #fafafa; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.shohin-btn.selected { background: #4a90e2; border-color: #4a90e2; color: #fff; font-weight: bold; }
+.save-banner { display: flex; align-items: center; justify-content: space-between; background: #eaf4ff; border: 1.5px solid #4a90e2; border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px; color: #2c3e50; }
+.save-banner span { flex: 1; }
+.save-banner-btns { display: flex; gap: 8px; }
+.save-small-btn { padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; border: none; }
+.save-small-btn.restore { background: #4a90e2; color: #fff; }
+.save-small-btn.discard { background: #ddd; color: #555; }
+.btn-area { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+.copy-btn { background: #27ae60; color: white; border: none; border-radius: 12px; padding: 16px; font-size: 17px; font-weight: bold; cursor: pointer; width: 100%; box-shadow: 0 3px 10px rgba(39,174,96,0.3); }
+.copy-btn:active { opacity: 0.85; }
+.save-btn { background: #4a90e2; color: white; border: none; border-radius: 12px; padding: 16px; font-size: 17px; font-weight: bold; cursor: pointer; width: 100%; box-shadow: 0 3px 10px rgba(74,144,226,0.3); }
+.save-btn:active { opacity: 0.85; }
+.history-btn { background: #fff; color: #4a90e2; border: 2px solid #4a90e2; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; }
+.sfa-btn { display: block; background: #fff; color: #8e44ad; border: 2px solid #8e44ad; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; text-align: center; text-decoration: none; }
+.sfa-btn:active { background: #f9f0ff; }
+.reset-btn { background: #fff; color: #e74c3c; border: 2px solid #e74c3c; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; }
+.reset-btn:active { background: #fdf0f0; }
+.toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #2c3e50; color: white; padding: 12px 24px; border-radius: 20px; font-size: 15px; z-index: 999; white-space: nowrap; }
+.toast.show { display: block; animation: fadeInOut 2s forwards; }
+@keyframes fadeInOut { 0% { opacity: 0; } 15% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; } }
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+.modal-overlay.show { display: block; }
+.modal { background: #fff; border-radius: 16px 16px 0 0; position: fixed; bottom: 0; left: 0; width: 100%; max-height: 85vh; overflow-y: auto; z-index: 1001; padding: 20px 16px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.modal-title { font-size: 17px; font-weight: bold; color: #2c3e50; }
+.modal-close { background: #ddd; border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.history-item { border: 1.5px solid #ddd; border-radius: 12px; padding: 14px; margin-bottom: 10px; background: #fafafa; }
+.history-item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.history-item-title { font-size: 15px; font-weight: bold; color: #2c3e50; }
+.history-item-date { font-size: 12px; color: #888; }
+.history-item-sub { font-size: 13px; color: #666; margin-bottom: 10px; }
+.history-item-btns { display: flex; gap: 8px; }
+.h-btn { flex: 1; padding: 8px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; border: none; text-align: center; }
+.h-btn.load { background: #4a90e2; color: #fff; }
+.h-btn.copy { background: #27ae60; color: #fff; }
+.h-btn.delete { background: #fff; color: #e74c3c; border: 1.5px solid #e74c3c; }
+.no-history { text-align: center; color: #aaa; padding: 40px 0; font-size: 15px; }
+.editing-banner { background: #fff8e1; border: 1.5px solid #f39c12; border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px; color: #2c3e50; display: none; align-items: center; justify-content: space-between; }
+.editing-banner.show { display: flex; }
+.overwrite-btn { padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; border: none; background: #f39c12; color: #fff; }
+</style>
 </head>
 <body>
 
 <h1>📋 日報入力アプリ</h1>
 
-<!-- 一時保存バナー（保存データがある時のみ表示） -->
+<!-- 一時保存バナー -->
 <div class="save-banner" id="saveBanner" style="display:none;">
   <span>💾 前回の入力途中データがあります</span>
   <div class="save-banner-btns">
@@ -262,46 +82,46 @@
   </div>
 </div>
 
+<!-- 編集中バナー -->
+<div class="editing-banner" id="editingBanner">
+  <span>✏️ 履歴データを編集中</span>
+  <button class="overwrite-btn" onclick="overwriteSave()">上書き保存</button>
+</div>
+
 <!-- 基本情報 -->
 <div class="section-title">📌 基本情報</div>
-
 <div class="card">
   <label>🏢 法人名</label>
   <input type="text" id="hojin" placeholder="例：○○株式会社">
 </div>
-
 <div class="card">
   <label>🏠 施設名<span class="required-badge">必須</span></label>
-  <input type="text" id="shisetsu" placeholder="例：○○施設"><p class="error-msg" id="err-shisetsu">⚠️ 施設名を入力してください</p>
+  <input type="text" id="shisetsu" placeholder="例：○○施設">
+  <p class="error-msg" id="err-shisetsu">⚠️ 施設名を入力してください</p>
 </div>
-
 <div class="card">
   <label>📅 日付<span class="required-badge">必須</span></label>
   <input type="date" id="date"><p class="error-msg" id="err-date">⚠️ 日付を入力してください</p>
 </div>
-
 <div class="card">
-  <label>🕐 開始時間~ 終了時間</label>
+  <label>🕐 開始時間~終了時間</label>
   <div class="time-row">
     <input type="time" id="startTime">
     <span>~</span>
     <input type="time" id="endTime">
   </div>
 </div>
-
 <div class="card">
   <label>👤 同行者</label>
   <input type="text" id="dokosha" placeholder="例：田中・鈴木（なし の場合はなしと入力）">
 </div>
-
 <div class="card">
   <label>🤝 面談者</label>
-  <input type="text" id="mendan" placeholder="例：施設長山田様">
+  <input type="text" id="mendan" placeholder="例：施設長 山田様">
 </div>
 
 <!-- 商談情報 -->
 <div class="section-title">🎯 商談情報</div>
-
 <div class="card">
   <label>🔢 商談フェーズ</label>
   <div class="select-wrap">
@@ -315,9 +135,8 @@
     </select>
   </div>
 </div>
-
 <div class="card">
-  <label>📦 紹介商材（複数選択可）</label>
+  <label>📦紹介商材（複数選択可）</label>
   <div class="shohin-grid" id="shohinGrid">
     <button class="shohin-btn" onclick="toggleShohin(this)">#NEXT</button>
     <button class="shohin-btn" onclick="toggleShohin(this)">#more</button>
@@ -331,7 +150,6 @@
     <button class="shohin-btn" onclick="toggleShohin(this)">#ヒヤリ</button>
   </div>
 </div>
-
 <div class="card">
   <label>⭐ 温度感</label>
   <div class="temp-row">
@@ -344,22 +162,18 @@
 
 <!-- BANT -->
 <div class="section-title">💼 BANT</div>
-
 <div class="card">
   <label>💰 Budget（予算）</label>
   <textarea id="budget" placeholder="例：月額3万円以内なら検討可。上長への確認が必要とのこと。"></textarea>
 </div>
-
 <div class="card">
   <label>👤 Authority（決裁者）</label>
   <textarea id="authority" placeholder="例：施設長が決裁権あり。法人本部の承認も必要。"></textarea>
 </div>
-
 <div class="card">
   <label>🎯 Needs（課題・ニーズ）</label>
   <textarea id="needs" placeholder="例：記録業務に時間がかかっている。算定漏れが発生している。"></textarea>
 </div>
-
 <div class="card">
   <label>⏰ Timeline（導入時期）</label>
   <textarea id="timeline" placeholder="例：来年4月の介護報酬改定に合わせて導入したい。"></textarea>
@@ -367,7 +181,6 @@
 
 <!-- 現状・競合 -->
 <div class="section-title">🔍 現状・競合</div>
-
 <div class="card">
   <label>💻 現在使用中のソフト</label>
   <input type="text" id="currentsoft" placeholder="例：〇〇社のシステムを使用中。契約更新は来年3月。">
@@ -375,22 +188,18 @@
 
 <!-- 活動内容 -->
 <div class="section-title">📝 活動内容</div>
-
 <div class="card">
   <label>📝 内容</label>
   <textarea id="naiyou" placeholder="例：システム導入提案を実施。デモを見ていただき好感触。"></textarea>
 </div>
-
 <div class="card">
   <label>📞 次回アクション</label>
   <textarea id="action" placeholder="例：2週間後に再訪。見積書と導入事例を持参する。"></textarea>
 </div>
-
 <div class="card">
   <label>🔜 今後</label>
   <textarea id="kongo" placeholder="例：来週デモ実施予定。見積書を準備する。"></textarea>
 </div>
-
 <div class="card">
   <label>📌 備考</label>
   <textarea id="biko" placeholder="例：担当者が来月異動予定とのこと。"></textarea>
@@ -399,213 +208,309 @@
 <!-- ボタン -->
 <div class="btn-area">
   <button class="copy-btn" onclick="copyAll()">📋 まとめてコピー</button>
+  <button class="save-btn" onclick="saveToHistory()">💾 履歴に保存</button>
+  <button class="history-btn" onclick="openHistory()">📂 履歴を見る</button>
+  <a href="https://sfa.ndsoft.co.jp/ni/nisfa/main/index.php?p=home" target="_blank" class="sfa-btn">🔗 SFA</a>
   <button class="reset-btn" onclick="resetAll()">🗑️ 全クリア</button>
 </div>
 
 <div class="toast" id="toast"></div>
 
+<!-- 履歴モーダル -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeHistoryOutside(event)">
+  <div class="modal" id="historyModal">
+    <div class="modal-header">
+      <span class="modal-title">📂 履歴一覧</span>
+      <button class="modal-close" onclick="closeHistory()">✕</button>
+    </div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
 <script>
-  // 今日の日付を自動セット
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
+const autoSaveIds = ['hojin','shisetsu','date','startTime','endTime','dokosha','mendan','phase','budget','authority','needs','timeline','currentsoft','naiyou','action','kongo','biko'];
+let selectedTemp = '';
+let editingId = null;
 
-  // 起動時に保存データ確認
-  window.addEventListener('load', () => {
-    const saved = localStorage.getItem('nippo_draft');
-    if (saved) {
-      document.getElementById('saveBanner').style.display = 'flex';
-    }
-  });
+// 今日の日付を自動セット
+const today = new Date();
+document.getElementById('date').value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
 
-  // 一時保存（入力のたびに自動保存）
-  const autoSaveIds = ['hojin','shisetsu','date','startTime','endTime','dokosha','mendan','phase','budget','authority','needs','timeline','currentsoft','naiyou','action','kongo','biko'];
+// 起動時チェック
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('nippo_draft');
+  if (saved) document.getElementById('saveBanner').style.display = 'flex';
+});
 
+// 自動保存
+autoSaveIds.forEach(id => {
+  document.getElementById(id).addEventListener('input', autoSave);
+  document.getElementById(id).addEventListener('change', autoSave);
+});
+function autoSave() {
+  const data = collectData();
+  localStorage.setItem('nippo_draft', JSON.stringify(data));
+}
+
+// データ収集
+function collectData() {
+  const data = {};
+  autoSaveIds.forEach(id => { data[id] = document.getElementById(id).value; });
+  data.temp = selectedTemp;
+  const selectedShohin = [];
+  document.querySelectorAll('.shohin-btn.selected').forEach(btn => selectedShohin.push(btn.textContent));
+  data.shohin = selectedShohin;
+  return data;
+}
+
+// フォームにデータをセット
+function setFormData(data) {
   autoSaveIds.forEach(id => {
-    document.getElementById(id).addEventListener('input', autoSave);
-    document.getElementById(id).addEventListener('change', autoSave);
+    if (data[id] !== undefined) document.getElementById(id).value = data[id];
   });
-
-  function autoSave() {
-    const data = {};
-    autoSaveIds.forEach(id => {
-      data[id] = document.getElementById(id).value;
+  selectedTemp = '';
+  ['b','c','d','e'].forEach(t => { document.getElementById(`temp-${t}`).className = 'temp-btn'; });if (data.temp) selectTemp(data.temp);
+  document.querySelectorAll('.shohin-btn').forEach(btn => btn.classList.remove('selected'));
+  if (data.shohin && data.shohin.length > 0) {
+    document.querySelectorAll('.shohin-btn').forEach(btn => {
+      if (data.shohin.includes(btn.textContent)) btn.classList.add('selected');
     });
-    data.temp = selectedTemp;
-    //紹介商材の選択状態を保存
-    const selectedShohin = [];
-    document.querySelectorAll('.shohin-btn.selected').forEach(btn => {
-      selectedShohin.push(btn.textContent);
-    });
-    data.shohin = selectedShohin;
-    localStorage.setItem('nippo_draft', JSON.stringify(data));
   }
+}
 
-  // 復元
-  function restoreData() {
-    const saved = localStorage.getItem('nippo_draft');
-    if (!saved) return;
-    const data = JSON.parse(saved);
-    autoSaveIds.forEach(id => {
-      if (data[id] !== undefined) document.getElementById(id).value = data[id];
-    });
-    if (data.temp) {
-      selectTemp(data.temp);
-    }
-    if (data.shohin && data.shohin.length > 0) {
-      document.querySelectorAll('.shohin-btn').forEach(btn => {
-        if (data.shohin.includes(btn.textContent)) {
-          btn.classList.add('selected');
-        }
-      });
-    }
-    document.getElementById('saveBanner').style.display = 'none';showToast('✅ データを復元しました！');
+// 一時保存 復元
+function restoreData() {
+  const saved = localStorage.getItem('nippo_draft');
+  if (!saved) return;
+  setFormData(JSON.parse(saved));
+  document.getElementById('saveBanner').style.display = 'none';showToast('✅ データを復元しました！');
+}
+function discardSave() {
+  localStorage.removeItem('nippo_draft');
+  document.getElementById('saveBanner').style.display = 'none';
+  showToast('🗑️ 保存データを破棄しました');
+}
+
+// 紹介商材トグル
+function toggleShohin(btn) {
+  btn.classList.toggle('selected');
+  autoSave();
+}
+
+// 温度感選択
+function selectTemp(type) {
+  ['b','c','d','e'].forEach(t => { document.getElementById(`temp-${t}`).className = 'temp-btn'; });
+  selectedTemp = type;
+  document.getElementById(`temp-${type}`).classList.add(`selected-${type}`);
+  autoSave();
+}
+
+// バリデーション
+function validate() {
+  let valid = true;
+  const shisetsu = document.getElementById('shisetsu');
+  const errShisetsu = document.getElementById('err-shisetsu');
+  if (!shisetsu.value.trim()) {
+    shisetsu.classList.add('error'); errShisetsu.classList.add('show'); valid = false;
+  } else {
+    shisetsu.classList.remove('error'); errShisetsu.classList.remove('show');
   }
-
-  // 保存データ破棄
-  function discardSave() {
-    localStorage.removeItem('nippo_draft');
-    document.getElementById('saveBanner').style.display = 'none';
-    showToast('🗑️ 保存データを破棄しました');
+  const date = document.getElementById('date');
+  const errDate = document.getElementById('err-date');
+  if (!date.value) {
+    date.classList.add('error'); errDate.classList.add('show'); valid = false;
+  } else {
+    date.classList.remove('error'); errDate.classList.remove('show');
   }
+  return valid;
+}
 
-  // 紹介商材トグル
-  function toggleShohin(btn) {
-    btn.classList.toggle('selected');
-    autoSave();
-  }
-
-  // 温度感選択
-  let selectedTemp = '';
-  function selectTemp(type) {
-    ['b','c','d','e'].forEach(t => {
-      document.getElementById(`temp-${t}`).className = 'temp-btn';
-    });
-    selectedTemp = type;
-    document.getElementById(`temp-${type}`).classList.add(`selected-${type}`);
-    autoSave();
-  }
-
-  // バリデーション
-  function validate() {
-    let valid = true;
-    const shisetsu = document.getElementById('shisetsu');
-    const errShisetsu = document.getElementById('err-shisetsu');
-    if (!shisetsu.value.trim()) {
-      shisetsu.classList.add('error');
-      errShisetsu.classList.add('show');
-      valid = false;
-    } else {
-      shisetsu.classList.remove('error');
-      errShisetsu.classList.remove('show');
-    }
-    const date = document.getElementById('date');
-    const errDate = document.getElementById('err-date');
-    if (!date.value) {
-      date.classList.add('error');
-      errDate.classList.add('show');
-      valid = false;
-    } else {
-      date.classList.remove('error');
-      errDate.classList.remove('show');
-    }
-    return valid;
-  }
-
-  // まとめてコピー
-  function copyAll() {
-    if (!validate()) {
-      showToast('⚠️ 必須項目を入力してください');
-      return;
-    }
-    const date = document.getElementById('date').value;
-    const formattedDate = date ? date.replace(/-/g, '/') : '未入力';
-    const start = document.getElementById('startTime').value || '未入力';
-    const end = document.getElementById('endTime').value || '未入力';
-    const tempLabel =
-      selectedTemp === 'b' ? 'B（内示）' :
-      selectedTemp === 'c' ? 'C（見込あり）' :
-      selectedTemp === 'd' ? 'D（見込可能性あり）' :
-      selectedTemp === 'e' ? 'E（見込なし）' : '未入力';
-
-    const selectedShohin = [];
-    document.querySelectorAll('.shohin-btn.selected').forEach(btn => {
-      selectedShohin.push(btn.textContent);
-    });
-    const shohinText = selectedShohin.length > 0 ? selectedShohin.join(' ') : '未入力';
-
-    const text = `【法人名】${document.getElementById('hojin').value || '未入力'}
-【施設名】${document.getElementById('shisetsu').value}
+// コピー用テキスト生成
+function buildText(data) {
+  const dateVal = data.date || '';
+  const formattedDate = dateVal ? dateVal.replace(/-/g, '/') : '未入力';
+  const start = data.startTime || '未入力';
+  const end = data.endTime || '未入力';
+  const tempLabel =
+    data.temp === 'b' ? 'B（内示）' :
+    data.temp === 'c' ? 'C（見込あり）' :
+    data.temp === 'd' ? 'D（見込可能性あり）' :
+    data.temp === 'e' ? 'E（見込なし）' : '未入力';
+  const shohinText = data.shohin && data.shohin.length > 0 ? data.shohin.join(' ') : '未入力';
+  return `【法人名】${data.hojin || '未入力'}
+【施設名】${data.shisetsu || '未入力'}
 【日付】${formattedDate}
 【時間】${start}~${end}
-【同行者】${document.getElementById('dokosha').value || '未入力'}
-【面談者】${document.getElementById('mendan').value || '未入力'}
-【商談フェーズ】${document.getElementById('phase').value || '未入力'}
+【同行者】${data.dokosha || '未入力'}
+【面談者】${data.mendan || '未入力'}
+【商談フェーズ】${data.phase || '未入力'}
 【紹介商材】${shohinText}
 【温度感】${tempLabel}
-【Budget（予算）】${document.getElementById('budget').value || '未入力'}
-【Authority（決裁者）】${document.getElementById('authority').value || '未入力'}
-【Needs（課題）】${document.getElementById('needs').value || '未入力'}
-【Timeline（導入時期）】${document.getElementById('timeline').value || '未入力'}
-【現在使用中のソフト】${document.getElementById('currentsoft').value || '未入力'}
-【内容】${document.getElementById('naiyou').value || '未入力'}
-【次回アクション】${document.getElementById('action').value || '未入力'}
-【今後】${document.getElementById('kongo').value || '未入力'}
-【備考】${document.getElementById('biko').value || '未入力'}`;
+【Budget（予算）】${data.budget || '未入力'}
+【Authority（決裁者）】${data.authority || '未入力'}
+【Needs（課題）】${data.needs || '未入力'}
+【Timeline（導入時期）】${data.timeline || '未入力'}
+【現在使用中のソフト】${data.currentsoft || '未入力'}
+【内容】${data.naiyou || '未入力'}
+【次回アクション】${data.action || '未入力'}
+【今後】${data.kongo || '未入力'}
+【備考】${data.biko || '未入力'}`;
+}
 
-    navigator.clipboard.writeText(text).then(() => {
-      showToast('📋 コピーしました！');
-      localStorage.removeItem('nippo_draft');
-    }).catch(() => {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      showToast('📋 コピーしました！');
-      localStorage.removeItem('nippo_draft');
-    });
-  }
+// まとめてコピー
+function copyAll() {
+  if (!validate()) { showToast('⚠️ 必須項目を入力してください'); return; }
+  const text = buildText(collectData());
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('📋 コピーしました！');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('📋 コピーしました！');
+  });
+}
 
-  // 全クリア
-  function resetAll() {
-    if (!confirm('入力内容をすべてクリアしますか？')) return;
-    autoSaveIds.forEach(id => {
-      document.getElementById(id).value = '';
-    });
-    document.getElementById('phase').value = '';
-    document.getElementById('startTime').value = '';
-    document.getElementById('endTime').value = '';
-    selectedTemp = '';
-    ['b','c','d','e'].forEach(t => {
-      document.getElementById(`temp-${t}`).className = 'temp-btn';
-    });
-    document.querySelectorAll('.shohin-btn').forEach(btn => {
-      btn.classList.remove('selected');
-    });
-    document.getElementById('shisetsu').classList.remove('error');
-    document.getElementById('err-shisetsu').classList.remove('show');
-    document.getElementById('date').classList.remove('error');
-    document.getElementById('err-date').classList.remove('show');
-    const t = new Date();
-    const y = t.getFullYear();
-    const m = String(t.getMonth()+1).padStart(2,'0');
-    const d = String(t.getDate()).padStart(2,'0');
-    document.getElementById('date').value = `${y}-${m}-${d}`;
-    localStorage.removeItem('nippo_draft');
-    showToast('🗑️ クリアしました！');
-  }
+// 履歴に保存
+function saveToHistory() {
+  if (!validate()) { showToast('⚠️ 必須項目を入力してください'); return; }
+  const data = collectData();
+  data.savedAt = new Date().toISOString();
+  data.id = Date.now().toString();
+  const histories = getHistories();
+  histories.unshift(data);
+  localStorage.setItem('nippo_histories', JSON.stringify(histories));
+  localStorage.removeItem('nippo_draft');
+  editingId = null;
+  document.getElementById('editingBanner').classList.remove('show');
+  showToast('💾 履歴に保存しました！');
+}
 
-  // トースト表示
-  function showToast(msg) {
-    const toast = document.getElementById('toast');
-    toast.textContent = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2000);
+// 上書き保存
+function overwriteSave() {
+  if (!validate()) { showToast('⚠️ 必須項目を入力してください'); return; }
+  if (!editingId) return;
+  const data = collectData();
+  data.savedAt = new Date().toISOString();
+  data.id = editingId;
+  const histories = getHistories();
+  const idx = histories.findIndex(h => h.id === editingId);
+  if (idx !== -1) { histories[idx] = data; } else { histories.unshift(data); }
+  localStorage.setItem('nippo_histories', JSON.stringify(histories));
+  editingId = null;
+  document.getElementById('editingBanner').classList.remove('show');
+  showToast('✅ 上書き保存しました！');
+}
+
+// 履歴取得
+function getHistories() {
+  const h = localStorage.getItem('nippo_histories');
+  return h ? JSON.parse(h) : [];
+}
+
+// 履歴モーダルを開く
+function openHistory() {
+  const histories = getHistories();
+  const list = document.getElementById('historyList');
+  if (histories.length === 0) {
+    list.innerHTML = '<div class="no-history">📭 保存された履歴がありません</div>';
+  } else {
+    list.innerHTML = histories.map(h => {
+      const dt = new Date(h.savedAt);
+      const dateStr = `${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,'0')}/${String(dt.getDate()).padStart(2,'0')} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+      const shohinStr = h.shohin && h.shohin.length > 0 ? h.shohin.join(' ') : 'ー';
+      const tempLabel =
+        h.temp === 'b' ? 'B（内示）' :
+        h.temp === 'c' ? 'C（見込あり）' :
+        h.temp === 'd' ? 'D（見込可能性あり）' :
+        h.temp === 'e' ? 'E（見込なし）' : 'ー';
+      return `<div class="history-item">
+        <div class="history-item-header">
+          <span class="history-item-title">🏠 ${h.shisetsu || '施設名未入力'}</span>
+          <span class="history-item-date">💾 ${dateStr}</span>
+        </div>
+        <div class="history-item-sub">📅 ${h.date ? h.date.replace(/-/g,'/') : 'ー'}／📦 ${shohinStr}／⭐ ${tempLabel}</div>
+        <div class="history-item-btns">
+          <button class="h-btn load" onclick="loadHistory('${h.id}')">✏️ 編集</button>
+          <button class="h-btn copy" onclick="copyHistory('${h.id}')">📋 コピー</button>
+          <button class="h-btn delete" onclick="deleteHistory('${h.id}')">🗑️ 削除</button>
+        </div>
+      </div>`;
+    }).join('');
   }
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+// 履歴を閉じる
+function closeHistory() { document.getElementById('modalOverlay').classList.remove('show'); }
+function closeHistoryOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeHistory(); }
+
+// 履歴を読み込んで編集
+function loadHistory(id) {
+  const histories = getHistories();
+  const data = histories.find(h => h.id === id);
+  if (!data) return;
+  setFormData(data);
+  editingId = id;
+  document.getElementById('editingBanner').classList.add('show');
+  closeHistory();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  showToast('✏️ 履歴を読み込みました。編集できます');
+}
+
+// 履歴からコピー（フォームを汚さずコピー）
+function copyHistory(id) {
+  const histories = getHistories();
+  const data = histories.find(h => h.id === id);
+  if (!data) return;
+  const text = buildText(data);
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('📋 コピーしました！');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('📋 コピーしました！');
+  });
+}
+
+// 履歴を削除
+function deleteHistory(id) {
+  if (!confirm('この履歴を削除しますか？')) return;
+  let histories = getHistories();
+  histories = histories.filter(h => h.id !== id);
+  localStorage.setItem('nippo_histories', JSON.stringify(histories));
+  openHistory();
+  showToast('🗑️ 削除しました');
+}
+
+// 全クリア
+function resetAll() {
+  if (!confirm('入力内容をすべてクリアしますか？')) return;
+  autoSaveIds.forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('phase').value = '';
+  selectedTemp = '';
+  ['b','c','d','e'].forEach(t => { document.getElementById(`temp-${t}`).className = 'temp-btn'; });
+  document.querySelectorAll('.shohin-btn').forEach(btn => btn.classList.remove('selected'));
+  document.getElementById('shisetsu').classList.remove('error');
+  document.getElementById('err-shisetsu').classList.remove('show');
+  document.getElementById('date').classList.remove('error');
+  document.getElementById('err-date').classList.remove('show');
+  editingId = null;
+  document.getElementById('editingBanner').classList.remove('show');
+  const t = new Date();
+  document.getElementById('date').value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+  localStorage.removeItem('nippo_draft');
+  showToast('🗑️ クリアしました！');
+}
+
+// トースト表示
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
 </script>
 </body>
 </html>
