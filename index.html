@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>日報入力アプリ</title><style>* { box-sizing: border-box; margin: 0; padding: 0; }
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>日報入力アプリ</title><style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
       background: #f0f4f8;
       padding: 16px;
@@ -37,9 +38,20 @@
       color: #555;
       margin-bottom: 6px;
     }
+    .required-badge {
+      display: inline-block;
+      background: #e74c3c;
+      color: #fff;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
     input, textarea, select {
       width: 100%;
-      padding: 10px 12px;
+      padding: 10px12px;
       border: 1.5px solid #ddd;
       border-radius: 8px;
       font-size: 16px;
@@ -52,6 +64,19 @@
     input:focus, textarea:focus, select:focus {
       border-color: #4a90e2;
       background: #fff;
+    }
+    input.error, select.error {
+      border-color: #e74c3c;
+      background: #fff5f5;
+    }
+    .error-msg {
+      display: none;
+      color: #e74c3c;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+    .error-msg.show {
+      display: block;
     }
     textarea {
       min-height: 80px;
@@ -89,7 +114,8 @@
       background: #fafafa;
       cursor: pointer;
       text-align: center;
-      transition: all 0.2s;}
+      transition: all 0.2s;
+    }
     .temp-btn.selected-c {
       background: #fff0f0;
       border-color: #e74c3c;
@@ -99,8 +125,7 @@
     .temp-btn.selected-d {
       background: #fffbe6;
       border-color: #f39c12;
-      color: #f39c12;
-      font-weight: bold;
+      color: #f39c12;font-weight: bold;
     }
     .temp-btn.selected-e {
       background: #f0f4ff;
@@ -130,7 +155,7 @@
     .reset-btn {
       background: #fff;
       color: #e74c3c;
-      border: 2px solid #e74c3c;
+      border:2px solid #e74c3c;
       border-radius: 12px;
       padding: 14px;
       font-size: 16px;
@@ -159,7 +184,8 @@
     @keyframes fadeInOut {
       0% { opacity: 0; }
       15% { opacity: 1; }
-      75% { opacity: 1; }100% { opacity: 0; }
+      75% { opacity: 1; }
+      100% { opacity: 0; }
     }
   </style>
 </head>
@@ -176,17 +202,18 @@
 </div>
 
 <div class="card">
-  <label>🏠 施設名</label>
-  <input type="text" id="shisetsu" placeholder="例：○○施設">
+  <label>🏠 施設名<span class="required-badge">必須</span></label>
+  <input type="text" id="shisetsu" placeholder="例：○○施設"><p class="error-msg" id="err-shisetsu">⚠️ 施設名を入力してください</p>
 </div>
 
 <div class="card">
-  <label>📅 日付</label>
+  <label>📅 日付<span class="required-badge">必須</span></label>
   <input type="date" id="date">
+  <p class="error-msg" id="err-date">⚠️ 日付を入力してください</p>
 </div>
 
 <div class="card">
-  <label>🕐 開始時間~ 終了時間</label>
+  <label>🕐 開始時間 ~ 終了時間</label>
   <div class="time-row">
     <input type="time" id="startTime">
     <span>~</span>
@@ -310,8 +337,42 @@
     document.getElementById(`temp-${type}`).classList.add(`selected-${type}`);
   }
 
+  // バリデーション
+  function validate() {
+    let valid = true;
+
+    const shisetsu = document.getElementById('shisetsu');
+    const errShisetsu = document.getElementById('err-shisetsu');
+    if (!shisetsu.value.trim()) {
+      shisetsu.classList.add('error');
+      errShisetsu.classList.add('show');
+      valid = false;
+    } else {
+      shisetsu.classList.remove('error');
+      errShisetsu.classList.remove('show');
+    }
+
+    const date = document.getElementById('date');
+    const errDate = document.getElementById('err-date');
+    if (!date.value) {
+      date.classList.add('error');
+      errDate.classList.add('show');
+      valid = false;
+    } else {
+      date.classList.remove('error');
+      errDate.classList.remove('show');
+    }
+
+    return valid;
+  }
+
   // まとめてコピー
   function copyAll() {
+    if (!validate()) {
+      showToast('⚠️ 必須項目を入力してください');
+      return;
+    }
+
     const date = document.getElementById('date').value;
     const formattedDate = date ? date.replace(/-/g, '/') : '未入力';
     const start = document.getElementById('startTime').value || '未入力';
@@ -364,6 +425,13 @@
     ['c','d','e'].forEach(t => {
       document.getElementById(`temp-${t}`).className = 'temp-btn';
     });
+
+    // エラー表示リセット
+    document.getElementById('shisetsu').classList.remove('error');
+    document.getElementById('err-shisetsu').classList.remove('show');
+    document.getElementById('date').classList.remove('error');
+    document.getElementById('err-date').classList.remove('show');
+
     const t = new Date();
     const y = t.getFullYear();
     const m = String(t.getMonth()+1).padStart(2,'0');
