@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head><meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>日報入力アプリ</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,7 +42,7 @@
       color: #333;
       background: #fafafa;
       outline: none;
-      transition: border 0.2s;
+      transition: border0.2s;
     }
     input:focus, textarea:focus {
       border-color: #4a90e2;
@@ -56,7 +55,8 @@
     .time-row {
       display: flex;
       align-items: center;
-      gap: 8px;}
+      gap: 8px;
+    }
     .time-row input { flex: 1; }
     .time-row span { font-size: 18px; color: #888; }
     .mic-row {
@@ -108,7 +108,7 @@
     .reset-btn {
       background: #fff;
       color: #e74c3c;
-      border:2px solid #e74c3c;
+      border: 2px solid #e74c3c;
       border-radius: 12px;
       padding: 14px;
       font-size: 16px;
@@ -159,7 +159,7 @@
 <div class="card">
   <label>🏠 施設名</label>
   <div class="mic-row">
-    <input type="text" id="shisetsu" placeholder="例：○○老人ホーム">
+    <input type="text" id="shisetsu" placeholder="例：○○施設">
     <button class="mic-btn" onclick="startVoice('shisetsu', this)">🎤</button>
   </div>
 </div>
@@ -170,12 +170,12 @@
   <input type="date" id="date">
 </div>
 
-<!-- 開始〜終了時間 -->
+<!-- 開始~終了時間 -->
 <div class="card">
-  <label>🕐 開始時間 〜 終了時間</label>
+  <label>🕐 開始時間 ~ 終了時間</label>
   <div class="time-row">
     <input type="time" id="startTime">
-    <span>〜</span>
+    <span>~</span>
     <input type="time" id="endTime">
   </div>
 </div>
@@ -184,7 +184,7 @@
 <div class="card">
   <label>👥 同行者</label>
   <div class="mic-row">
-    <input type="text" id="dokosha" placeholder="例：田中・佐藤（なし の場合はなしと入力）">
+    <input type="text" id="dokosha" placeholder="例：田中・鈴木（なし の場合はなしと入力）">
     <button class="mic-btn" onclick="startVoice('dokosha', this)">🎤</button>
   </div>
 </div>
@@ -193,7 +193,7 @@
 <div class="card">
   <label>🤝 面談者</label>
   <div class="mic-row">
-    <input type="text" id="mendan" placeholder="例：施設長鈴木様">
+    <input type="text" id="mendan" placeholder="例：施設長 山田様">
     <button class="mic-btn" onclick="startVoice('mendan', this)">🎤</button>
   </div>
 </div>
@@ -233,7 +233,8 @@
 
 <div class="toast" id="toast"></div>
 
-<script>// 今日の日付を自動セット
+<script>
+  // 今日の日付を自動セット
   const today = new Date();
   const yyyy = today.getFullYear();
   const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -258,7 +259,7 @@
     recognition.onresult = (e) => {
       const transcript = e.results[0][0].transcript;
       const el = document.getElementById(fieldId);
-      el.value += (el.value ? '' : '') + transcript;
+      el.value += transcript;
     };
     recognition.onend = () => {
       btn.classList.remove('listening');
@@ -281,7 +282,7 @@
     const text = `【法人名】${document.getElementById('hojin').value || '未入力'}
 【施設名】${document.getElementById('shisetsu').value || '未入力'}
 【日付】${formattedDate}
-【時間】${start}〜${end}
+【時間】${start}~${end}
 【同行者】${document.getElementById('dokosha').value || '未入力'}
 【面談者】${document.getElementById('mendan').value || '未入力'}
 【内容】${document.getElementById('naiyou').value || '未入力'}
@@ -291,7 +292,6 @@
     navigator.clipboard.writeText(text).then(() => {
       showToast('📋 コピーしました！');
     }).catch(() => {
-      // fallback
       const ta = document.createElement('textarea');
       ta.value = text;
       document.body.appendChild(ta);
