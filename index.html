@@ -14,9 +14,6 @@ input.error, select.error { border-color: #e74c3c; background: #fff5f5; }
 .error-msg { display: none; color: #e74c3c; font-size: 12px; margin-top: 6px; }
 .error-msg.show { display: block; }
 textarea { min-height: 80px; resize: vertical; }
-.time-row { display: flex; align-items: center; gap: 8px; }
-.time-row input { flex: 1; }
-.time-row span { font-size: 18px; color: #888; }
 .select-wrap { position: relative; }
 .select-wrap::after { content: '▼'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; color: #888; pointer-events: none; }
 .temp-row { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -97,25 +94,18 @@ textarea { min-height: 80px; resize: vertical; }
 <!-- 基本情報 -->
 <div class="section-title">📌 基本情報</div>
 <div class="card">
-  <label>🏢 法人名</label>
-  <input type="text" id="hojin" placeholder="例：○○株式会社">
-</div>
-<div class="card">
-  <label>🏠 施設名<span class="required-badge">必須</span></label>
-  <input type="text" id="shisetsu" placeholder="例：○○施設">
-  <p class="error-msg" id="err-shisetsu">⚠️ 施設名を入力してください</p>
+  <label>🏢 法人/施設名<span class="required-badge">必須</span></label>
+  <input type="text" id="hojin" placeholder="例：○○法人 ○○施設">
+  <p class="error-msg" id="err-hojin">⚠️ 法人/施設名を入力してください</p>
 </div>
 <div class="card">
   <label>📅 日付<span class="required-badge">必須</span></label>
-  <input type="date" id="date"><p class="error-msg" id="err-date">⚠️ 日付を入力してください</p>
+  <input type="date" id="date">
+  <p class="error-msg" id="err-date">⚠️ 日付を入力してください</p>
 </div>
 <div class="card">
   <label>🕐 開始時間~終了時間</label>
-  <div class="time-row">
-    <input type="time" id="startTime">
-    <span>~</span>
-    <input type="time" id="endTime">
-  </div>
+  <input type="text" id="timeRange" placeholder="例：10:00~11:30">
 </div>
 <div class="card">
   <label>👤 同行者</label>
@@ -123,7 +113,7 @@ textarea { min-height: 80px; resize: vertical; }
 </div>
 <div class="card">
   <label>🤝 面談者</label>
-  <input type="text" id="mendan" placeholder="例：施設長山田様">
+  <input type="text" id="mendan" placeholder="例：施設長 山田様">
 </div>
 
 <!-- 商談情報 -->
@@ -142,7 +132,7 @@ textarea { min-height: 80px; resize: vertical; }
   </div>
 </div>
 <div class="card">
-  <label>📦紹介商材（複数選択可）</label>
+  <label>📦 紹介商材（複数選択可）</label>
   <div class="shohin-grid" id="shohinGrid">
     <button class="shohin-btn" onclick="toggleShohin(this)">#NEXT</button>
     <button class="shohin-btn" onclick="toggleShohin(this)">#more</button>
@@ -151,7 +141,7 @@ textarea { min-height: 80px; resize: vertical; }
     <button class="shohin-btn" onclick="toggleShohin(this)">#CPN</button>
     <button class="shohin-btn" onclick="toggleShohin(this)">#CPH</button>
     <button class="shohin-btn" onclick="toggleShohin(this)">#つながる家族</button>
-    <button class="shohin-btn" onclick="toggleShohin(this)">#[name]</button>
+    <button class="shohin-btn" onclick="toggleShohin(this)">#ほのぼのVoice</button>
     <button class="shohin-btn" onclick="toggleShohin(this)">#事故</button>
     <button class="shohin-btn" onclick="toggleShohin(this)">#ヒヤリ</button>
   </div>
@@ -203,10 +193,6 @@ textarea { min-height: 80px; resize: vertical; }
   <textarea id="action" placeholder="例：2週間後に再訪。見積書と導入事例を持参する。"></textarea>
 </div>
 <div class="card">
-  <label>🔜 今後</label>
-  <textarea id="kongo" placeholder="例：来週デモ実施予定。見積書を準備する。"></textarea>
-</div>
-<div class="card">
   <label>📌 備考</label>
   <textarea id="biko" placeholder="例：担当者が来月異動予定とのこと。"></textarea>
 </div>
@@ -240,7 +226,7 @@ textarea { min-height: 80px; resize: vertical; }
 
 <script>
 const HISTORY_LIMIT = 50;
-const autoSaveIds = ['hojin','shisetsu','date','startTime','endTime','dokosha','mendan','phase','budget','authority','needs','timeline','currentsoft','naiyou','action','kongo','biko'];
+const autoSaveIds = ['hojin','date','timeRange','dokosha','mendan','phase','budget','authority','needs','timeline','currentsoft','naiyou','action','biko'];
 let selectedTemp = '';
 let editingId = null;
 
@@ -295,7 +281,8 @@ function restoreData() {
   const saved = localStorage.getItem('nippo_draft');
   if (!saved) return;
   setFormData(JSON.parse(saved));
-  document.getElementById('saveBanner').style.display = 'none';showToast('✅ データを復元しました！');
+  document.getElementById('saveBanner').style.display = 'none';
+  showToast('✅ データを復元しました！');
 }
 function discardSave() {
   localStorage.removeItem('nippo_draft');
@@ -320,12 +307,12 @@ function selectTemp(type) {
 // バリデーション
 function validate() {
   let valid = true;
-  const shisetsu = document.getElementById('shisetsu');
-  const errShisetsu = document.getElementById('err-shisetsu');
-  if (!shisetsu.value.trim()) {
-    shisetsu.classList.add('error'); errShisetsu.classList.add('show'); valid = false;
+  const hojin = document.getElementById('hojin');
+  const errHojin = document.getElementById('err-hojin');
+  if (!hojin.value.trim()) {
+    hojin.classList.add('error'); errHojin.classList.add('show'); valid = false;
   } else {
-    shisetsu.classList.remove('error'); errShisetsu.classList.remove('show');
+    hojin.classList.remove('error'); errHojin.classList.remove('show');
   }
   const date = document.getElementById('date');
   const errDate = document.getElementById('err-date');
@@ -337,36 +324,38 @@ function validate() {
   return valid;
 }
 
-// コピー用テキスト生成
+// コピー用テキスト生成（未入力項目はスキップ）
 function buildText(data) {
   const dateVal = data.date || '';
-  const formattedDate = dateVal ? dateVal.replace(/-/g, '/') : '未入力';
-  const start = data.startTime || '未入力';
-  const end = data.endTime || '未入力';
+  const formattedDate = dateVal ? dateVal.replace(/-/g, '/') : '';
   const tempLabel =
     data.temp === 'b' ? 'B（内示）' :
     data.temp === 'c' ? 'C（見込あり）' :
     data.temp === 'd' ? 'D（見込可能性あり）' :
-    data.temp === 'e' ? 'E（見込なし）' : '未入力';
-  const shohinText = data.shohin && data.shohin.length > 0 ? data.shohin.join(' ') : '未入力';
-  return `【法人名】${data.hojin || '未入力'}
-【施設名】${data.shisetsu || '未入力'}
-【日付】${formattedDate}
-【時間】${start}~${end}
-【同行者】${data.dokosha || '未入力'}
-【面談者】${data.mendan || '未入力'}
-【商談フェーズ】${data.phase || '未入力'}
-【紹介商材】${shohinText}
-【温度感】${tempLabel}
-【Budget（予算）】${data.budget || '未入力'}
-【Authority（決裁者）】${data.authority || '未入力'}
-【Needs（課題）】${data.needs || '未入力'}
-【Timeline（導入時期）】${data.timeline || '未入力'}
-【現在使用中のソフト】${data.currentsoft || '未入力'}
-【内容】${data.naiyou || '未入力'}
-【次回アクション】${data.action || '未入力'}
-【今後】${data.kongo || '未入力'}
-【備考】${data.biko || '未入力'}`;
+    data.temp === 'e' ? 'E（見込なし）' : '';
+  const shohinText = data.shohin && data.shohin.length > 0 ? data.shohin.join(' ') : '';
+
+  const lines = [];
+  const add = (label, value) => { if (value && value.trim() !== '') lines.push(`${label}${value}`); };
+
+  add('【法人/施設名】', data.hojin);
+  add('【日付】', formattedDate);
+  add('【時間】', data.timeRange);
+  add('【同行者】', data.dokosha);
+  add('【面談者】', data.mendan);
+  add('【商談フェーズ】', data.phase);
+  add('【紹介商材】', shohinText);
+  add('【温度感】', tempLabel);
+  add('【Budget（予算）】', data.budget);
+  add('【Authority（決裁者）】', data.authority);
+  add('【Needs（課題）】', data.needs);
+  add('【Timeline（導入時期）】', data.timeline);
+  add('【現在使用中のソフト】', data.currentsoft);
+  add('【内容】', data.naiyou);
+  add('【次回アクション】', data.action);
+  add('【備考】', data.biko);
+
+  return lines.join('\n');
 }
 
 // まとめてコピー
@@ -391,9 +380,7 @@ function saveToHistory() {
   data.id = Date.now().toString();
   let histories = getHistories();
   histories.unshift(data);
-  if (histories.length > HISTORY_LIMIT) {
-    histories = histories.slice(0, HISTORY_LIMIT);
-  }
+  if (histories.length > HISTORY_LIMIT) histories = histories.slice(0, HISTORY_LIMIT);
   localStorage.setItem('nippo_histories', JSON.stringify(histories));
   localStorage.removeItem('nippo_draft');
   editingId = null;
@@ -431,7 +418,7 @@ function openHistory() {
   const limitBanner = document.getElementById('limitBanner');
   countEl.textContent = `保存件数：${histories.length} / ${HISTORY_LIMIT}件`;
   limitBanner.classList.toggle('show', histories.length >= HISTORY_LIMIT);
-  if (histories.length ===0) {
+  if (histories.length === 0) {
     list.innerHTML = '<div class="no-history">📭 保存された履歴がありません</div>';
   } else {
     list.innerHTML = histories.map(h => {
@@ -445,7 +432,7 @@ function openHistory() {
         h.temp === 'e' ? 'E（見込なし）' : 'ー';
       return `<div class="history-item">
         <div class="history-item-header">
-          <span class="history-item-title">🏠 ${h.shisetsu || '施設名未入力'}</span>
+          <span class="history-item-title">🏢 ${h.hojin || '法人/施設名未入力'}</span>
           <span class="history-item-date">💾 ${dateStr}</span>
         </div>
         <div class="history-item-sub">📅 ${h.date ? h.date.replace(/-/g,'/') : 'ー'}／📦 ${shohinStr}／⭐ ${tempLabel}</div>
@@ -456,7 +443,8 @@ function openHistory() {
         </div>
       </div>`;
     }).join('');
-  }document.getElementById('modalOverlay').classList.add('show');
+  }
+  document.getElementById('modalOverlay').classList.add('show');
 }
 
 // 履歴を閉じる
@@ -502,12 +490,11 @@ function deleteHistory(id) {
   showToast('🗑️ 削除しました');
 }
 
-// エクスポート（日付で囲んで全件テキスト出力）
+// エクスポート
 function exportHistories() {
   const histories = getHistories();
   if (histories.length === 0) { showToast('📭 エクスポートする履歴がありません'); return; }
 
-  //訪問日付でグループ化（date基準、なければsavedAt日付）
   const groups = {};
   histories.forEach(h => {
     const keyDate = h.date ? h.date.replace(/-/g, '/') : new Date(h.savedAt).toLocaleDateString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g,'/');
@@ -515,9 +502,7 @@ function exportHistories() {
     groups[keyDate].push(h);
   });
 
-  // 日付の新しい順にソート
   const sortedDates = Object.keys(groups).sort((a, b) => b.localeCompare(a));
-
   const separator = '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
   const lines = [];
 
@@ -539,8 +524,6 @@ function exportHistories() {
   });
 
   const fullText = lines.join('\n');
-
-  //ダウンロード
   const blob = new Blob([fullText], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -561,8 +544,8 @@ function resetAll() {
   selectedTemp = '';
   ['b','c','d','e'].forEach(t => { document.getElementById(`temp-${t}`).className = 'temp-btn'; });
   document.querySelectorAll('.shohin-btn').forEach(btn => btn.classList.remove('selected'));
-  document.getElementById('shisetsu').classList.remove('error');
-  document.getElementById('err-shisetsu').classList.remove('show');
+  document.getElementById('hojin').classList.remove('error');
+  document.getElementById('err-hojin').classList.remove('show');
   document.getElementById('date').classList.remove('error');
   document.getElementById('err-date').classList.remove('show');
   editingId = null;
